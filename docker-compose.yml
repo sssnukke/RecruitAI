@@ -1,0 +1,46 @@
+services:
+  back:
+    build:
+      dockerfile: ./buildfiles/back.dockerfile
+    container_name: back
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: '${BACK_POSTGRES_PASSWORD}'
+      POSTGRES_USER: '${BACK_POSTGRES_USER}'
+      POSTGRES_DB: '${BACK_POSTGRES_DB}'
+      BACK_SECRET_TOKEN: '${BACK_SECRET_TOKEN}'
+      BACK_POSTGRES_HOST: '${BACK_POSTGRES_HOST}'
+      BACK_INNER_POSTGRES_PORT: '${BACK_POSTGRES_PORT}'
+      BACK_PORT: '${BACK_PORT}'
+    volumes:
+      - ./back:/app/back
+    ports:
+      - '${BACK_PORT}:${BACK_PORT}'
+    depends_on:
+      - db
+    networks:
+      - api-network
+
+  db:
+    image: postgres:17
+    container_name: db
+    environment:
+      POSTGRES_USER: ${BACK_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${BACK_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${BACK_POSTGRES_DB}
+    ports:
+      - "${BACK_POSTGRES_PORT}:5432"
+    volumes:
+      - './data/db:/var/lib/pgdata/data'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${BACK_POSTGRES_USER} -d ${BACK_POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+    networks:
+      - api-network
+
+networks:
+  api-network:
+    driver: bridge
