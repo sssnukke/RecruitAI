@@ -14,6 +14,7 @@ type Config struct {
 	BackPostgresPort     string
 	BackPostgresHost     string
 	SecretToken          string
+	KeyGPT               string
 }
 
 func Load() *Config {
@@ -31,6 +32,7 @@ func Load() *Config {
 	backPostgresPort := getEnv("BACK_POSTGRES_PORT", "")
 	secretToken := getEnv("BACK_SECRET_TOKEN", "")
 	backPostgresHost := getEnv("BACK_POSTGRES_HOST", "")
+	keyGPT := getEnv("KEY_GPT", "")
 
 	return &Config{
 		BackPort:             backPort,
@@ -40,6 +42,7 @@ func Load() *Config {
 		BackPostgresPort:     backPostgresPort,
 		BackPostgresHost:     backPostgresHost,
 		SecretToken:          secretToken,
+		KeyGPT:               keyGPT,
 	}
 }
 

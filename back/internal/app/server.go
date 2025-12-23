@@ -2,6 +2,7 @@ package app
 
 import (
 	"back/internal/config"
+	"back/internal/endpoints/candidate_resume"
 	"back/internal/middlewares"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -29,6 +30,13 @@ func NewServer(cfg *config.Config, db *gorm.DB) *Server {
 func (s *Server) routers() {
 	protected := s.router.PathPrefix("/api/v1").Subrouter()
 	protected.Use(middlewares.AuthMiddleware(s.cfg.SecretToken))
+
+	//Обработка резюме
+	candidateResumeRepo := candidate_resume.NewRepository(s.db)
+	candidateResumeService := candidate_resume.NewService(candidateResumeRepo, s.cfg)
+	candidateResumeHandler := candidate_resume.NewHandler(candidateResumeService)
+
+	protected.HandleFunc("/resume", candidateResumeHandler.CheckCandidate).Methods("POST")
 }
 
 func (s *Server) Start() {
